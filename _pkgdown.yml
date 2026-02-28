@@ -1,0 +1,33 @@
+url: https://pcstrategyandopsco.github.io/dialvalidator/
+
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+navbar:
+  structure:
+    left:  [intro, reference, articles]
+    right: [search, github]
+  components:
+    github:
+      icon: fa-github
+      href: https://github.com/pcstrategyandopsco/dialvalidator
+
+reference:
+  - title: "Core functions"
+    desc: "Parse, validate, format, and classify phone numbers."
+    contents:
+      - phone_parse
+      - phone_valid
+      - phone_format
+      - phone_type
+      - phone_country
+      - phone_info
+
+  - title: "Metadata"
+    desc: "Access and update the bundled libphonenumber metadata."
+    contents:
+      - metadata
+      - dv_metadata
+      - dv_territory
+      - dv_update_metadata

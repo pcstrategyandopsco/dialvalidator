@@ -1,0 +1,100 @@
+---
+title: "Getting started with dialvalidator"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with dialvalidator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+
+dialvalidator parses, validates, formats, and classifies phone numbers using
+Google's libphonenumber metadata. It covers 240+ territories and requires no
+Java runtime.
+
+```{r setup}
+library(dialvalidator)
+```
+
+## Parsing numbers
+
+Numbers can be supplied in international format (with a leading `+`) or in
+national format with a `default_region`:
+```{r}
+# International format — region is inferred
+phone_parse("+64211234567")
+
+# National format — supply the region
+phone_parse("021 123 4567", default_region = "NZ")
+```
+
+## Validating numbers
+
+`phone_valid()` returns a logical vector:
+
+```{r}
+phone_valid(c("+64211234567", "+6421", "not a number"))
+```
+
+## Formatting numbers
+
+Three output formats are supported:
+
+```{r}
+phone_format("+64211234567", "E164")
+phone_format("+64211234567", "NATIONAL")
+phone_format("+64211234567", "INTERNATIONAL")
+```
+
+## Detecting type and country
+
+```{r}
+phone_type(c("+64211234567", "+6493001234", "+18005551234"))
+phone_country(c("+64211234567", "+12125551234", "+442071234567"))
+```
+
+## All-in-one with phone_info()
+
+For batch processing, `phone_info()` returns a data frame with all fields:
+
+```{r}
+phone_info(c("+64211234567", "+12125551234", "+61412345678"))
+```
+
+## Updating metadata
+
+The bundled metadata is current as of the package build date. To fetch the
+latest version from Google's repository:
+
+```{r, eval = FALSE}
+dv_update_metadata()
+```
+
+Updated metadata is cached locally and used for the remainder of the session.
+
+## Working with national numbers
+
+When processing numbers from a known country, set `default_region` once:
+
+```{r}
+nz_numbers <- c("021 123 4567", "09 300 1234", "0800 123 456")
+phone_info(nz_numbers, default_region = "NZ")
+```
+
+## NANPA (North American Numbering Plan)
+
+Country code +1 is shared by the US, Canada, and Caribbean nations.
+dialvalidator resolves the correct region using territory-specific area code
+patterns:
+
+```{r}
+phone_country(c("+12125551234", "+14165551234"))
+```

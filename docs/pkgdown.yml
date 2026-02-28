@@ -1,0 +1,9 @@
+pandoc: '3.9'
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  dialvalidator: dialvalidator.html
+last_built: 2026-02-28T06:50Z
+urls:
+  reference: https://pcstrategyandopsco.github.io/dialvalidator/reference
+  article: https://pcstrategyandopsco.github.io/dialvalidator/articles

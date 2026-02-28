@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+    inputs:
+      config:
+        description: 'R-hub platform to check on'
+        type: choice
+        options:
+          - linux
+          - macos
+          - macos-arm64
+          - windows
+          - atlas
+          - clang-asan
+          - clang16
+          - clang17
+          - clang18
+          - gcc13
+          - intel
+          - mkl
+          - nold
+          - nosuggests
+          - ubuntu-clang
+          - ubuntu-gcc12
+          - ubuntu-next
+          - ubuntu-release
+          - valgrind
+
+name: R-hub
+
+permissions: read-all
+
+jobs:
+  rhub:
+    uses: r-hub/actions/workflows/rhub-platform-check.yaml@v1
+    with:
+      config: ${{ github.event.inputs.config }}
