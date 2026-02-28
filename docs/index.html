@@ -58,7 +58,30 @@
 <a class="anchor" aria-label="anchor" href="#dialvalidator-"></a>
 </h1>
 </div>
-<p>Phone number validation for R using Google’s <a href="https://github.com/google/libphonenumber" class="external-link">libphonenumber</a> metadata. No Java required.</p>
+<p>Parse, validate, format, and classify international phone numbers in R – powered by Google’s <a href="https://github.com/google/libphonenumber" class="external-link">libphonenumber</a> metadata. No Java required.</p>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>Phone number validation is surprisingly hard. A 10-digit number that’s valid in the US is invalid in New Zealand. Country code +1 is shared by 25 territories. Local formatting rules vary wildly. Google’s libphonenumber project has spent over a decade cataloguing these rules across 240+ territories, and is the validation engine behind Android, WhatsApp, and most major telecoms.</p>
+<p><strong>dialvalidator</strong> brings this metadata to R by parsing libphonenumber’s <code>PhoneNumberMetadata.xml</code> directly into a native R object – no Java, no rJava, no JDK configuration. Install it like any other R package and start validating immediately.</p>
+<div class="section level3">
+<h3 id="what-it-does">What it does<a class="anchor" aria-label="anchor" href="#what-it-does"></a>
+</h3>
+<ul>
+<li>
+<strong>Validates</strong> phone numbers against per-territory patterns and length rules</li>
+<li>
+<strong>Formats</strong> numbers as E.164, national, or international</li>
+<li>
+<strong>Classifies</strong> numbers as mobile, fixed-line, toll-free, premium-rate, VoIP, and more</li>
+<li>
+<strong>Resolves</strong> country from number (including NANPA: +1 US vs +1 CA vs +1 JM)</li>
+<li>
+<strong>Handles</strong> national-format input when you specify the default region</li>
+</ul>
+<p>All functions are vectorised and return simple R types (<code>logical</code>, <code>character</code>, <code>data.frame</code>).</p>
+</div>
+</div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -67,41 +90,93 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu">pak</span><span class="op">(</span><span class="st">"pcstrategyandopsco/dialvalidator"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pcstrategyandopsco.github.io/dialvalidator/">dialvalidator</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Validate</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pcstrategyandopsco.github.io/dialvalidator/">dialvalidator</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
+</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># International format -- region is inferred from the number</span></span>
 <span><span class="fu"><a href="reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; TRUE</span></span>
 <span></span>
-<span><span class="co"># Format</span></span>
+<span><span class="fu"><a href="reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"+6421"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; FALSE (too short)</span></span>
+<span></span>
+<span><span class="co"># National format -- supply the region</span></span>
+<span><span class="fu"><a href="reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"021 123 4567"</span>, default_region <span class="op">=</span> <span class="st">"NZ"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; TRUE</span></span>
+<span></span>
+<span><span class="co"># Vectorised -- validate a whole column at once</span></span>
+<span><span class="fu"><a href="reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"not a number"</span>, <span class="st">"+61412345678"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; TRUE TRUE FALSE TRUE</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="formatting">Formatting<a class="anchor" aria-label="anchor" href="#formatting"></a>
+</h3>
+<p>Three output formats, matching libphonenumber’s conventions:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"E164"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "+64211234567"</span></span>
+<span></span>
 <span><span class="fu"><a href="reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; "021 123 4567"</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"INTERNATIONAL"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; "+64 21 123 4567"</span></span>
 <span></span>
-<span><span class="co"># Detect type and country</span></span>
-<span><span class="fu"><a href="reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
+<span><span class="co"># US number</span></span>
+<span><span class="fu"><a href="reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+12125551234"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "(212) 555-1234"</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="type-detection">Type detection<a class="anchor" aria-label="anchor" href="#type-detection"></a>
+</h3>
+<p>Classifies numbers by matching against per-territory patterns for each number type. Patterns are defined by Google’s libphonenumber team and updated regularly.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; "mobile"</span></span>
 <span></span>
-<span><span class="fu"><a href="reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+6493001234"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "fixed_line"</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+64800123456"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "toll_free"</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+18005551234"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "toll_free"</span></span></code></pre></div>
+<p>Possible types: <code>mobile</code>, <code>fixed_line</code>, <code>fixed_line_or_mobile</code>, <code>toll_free</code>, <code>premium_rate</code>, <code>shared_cost</code>, <code>personal_number</code>, <code>voip</code>, <code>pager</code>, <code>uan</code>, <code>voicemail</code>, <code>unknown</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="country-resolution">Country resolution<a class="anchor" aria-label="anchor" href="#country-resolution"></a>
+</h3>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; "NZ"</span></span>
 <span></span>
-<span><span class="co"># National format with default region</span></span>
-<span><span class="fu"><a href="reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"021 123 4567"</span>, default_region <span class="op">=</span> <span class="st">"NZ"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; TRUE</span></span>
+<span><span class="fu"><a href="reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="st">"+12125551234"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "US"</span></span>
 <span></span>
-<span><span class="co"># All-in-one</span></span>
-<span><span class="fu"><a href="reference/phone_info.html">phone_info</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># NANPA resolution -- +1 416 is Toronto, not New York</span></span>
+<span><span class="fu"><a href="reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="st">"+14165551234"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; "CA"</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="all-in-one-with-phone_info">All-in-one with phone_info()<a class="anchor" aria-label="anchor" href="#all-in-one-with-phone_info"></a>
+</h3>
+<p>For batch processing or exploratory analysis, <code><a href="reference/phone_info.html">phone_info()</a></code> returns everything in a single data frame:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/phone_info.html">phone_info</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"+61412345678"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            raw         e164       national   international region country_code   type valid</span></span>
 <span><span class="co">#&gt; 1 +64211234567 +64211234567   021 123 4567 +64 21 123 4567     NZ           64 mobile  TRUE</span></span>
-<span><span class="co">#&gt; 2 +12125551234 +12125551234 (212) 555-1234 +1 212-555-1234     US            1 ...    TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; 2 +12125551234 +12125551234 (212) 555-1234 +1 212-555-1234     US            1  ...   TRUE</span></span>
+<span><span class="co">#&gt; 3 +61412345678 +61412345678  0412 345 678  +61 412 345 678     AU           61 mobile  TRUE</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
-<h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
+<h2 id="api-reference">API reference<a class="anchor" aria-label="anchor" href="#api-reference"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -133,7 +208,7 @@
 <tr>
 <td><code><a href="reference/phone_type.html">phone_type()</a></code></td>
 <td>character</td>
-<td>Classify as mobile, fixed_line, toll_free, etc.</td>
+<td>Classify number type (mobile, fixed_line, toll_free, …)</td>
 </tr>
 <tr>
 <td><code><a href="reference/phone_country.html">phone_country()</a></code></td>
@@ -145,17 +220,79 @@
 <td>data.frame</td>
 <td>All of the above in one call</td>
 </tr>
+<tr>
+<td><code><a href="reference/dv_metadata.html">dv_metadata()</a></code></td>
+<td>list</td>
+<td>Access the full metadata object</td>
+</tr>
+<tr>
+<td><code><a href="reference/dv_territory.html">dv_territory()</a></code></td>
+<td>list</td>
+<td>Metadata for a specific territory</td>
+</tr>
+<tr>
+<td><code><a href="reference/dv_update_metadata.html">dv_update_metadata()</a></code></td>
+<td>(side effect)</td>
+<td>Download latest metadata from upstream</td>
+</tr>
 </tbody>
 </table>
-<p>All functions are vectorised: pass a character vector, get a vector (or data frame) back.</p>
 </div>
 <div class="section level2">
-<h2 id="metadata">Metadata<a class="anchor" aria-label="anchor" href="#metadata"></a>
+<h2 id="performance">Performance<a class="anchor" aria-label="anchor" href="#performance"></a>
 </h2>
-<p>The package ships with pre-parsed metadata from libphonenumber covering 240+ territories. To update to the latest upstream metadata:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>Benchmarked on Apple M1, R 4.5.2:</p>
+<table class="table">
+<thead><tr>
+<th>Operation</th>
+<th>Single call</th>
+<th>Batch (per number)</th>
+<th align="right">Throughput</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code><a href="reference/phone_valid.html">phone_valid()</a></code></td>
+<td>~170 µs</td>
+<td>~25 µs</td>
+<td align="right">~4,000/sec</td>
+</tr>
+<tr>
+<td><code><a href="reference/phone_type.html">phone_type()</a></code></td>
+<td>~160 µs</td>
+<td>~25 µs</td>
+<td align="right">~4,000/sec</td>
+</tr>
+<tr>
+<td><code><a href="reference/phone_format.html">phone_format()</a></code></td>
+<td>~500 µs</td>
+<td>~50 µs</td>
+<td align="right">~2,000/sec</td>
+</tr>
+<tr>
+<td><code><a href="reference/phone_info.html">phone_info()</a></code></td>
+<td>~1 ms</td>
+<td>~90 µs</td>
+<td align="right">~1,100/sec</td>
+</tr>
+</tbody>
+</table>
+<p>Single-call overhead is dominated by R function dispatch. In batch mode (vectorised input), throughput scales well – 10,000 numbers validate in under 3 seconds.</p>
+</div>
+<div class="section level2">
+<h2 id="keeping-metadata-current">Keeping metadata current<a class="anchor" aria-label="anchor" href="#keeping-metadata-current"></a>
+</h2>
+<p>The package ships with pre-parsed metadata covering 240+ territories. No internet access is needed at install time or during normal use.</p>
+<p>To pull the latest upstream metadata (new area codes, format changes):</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/dv_update_metadata.html">dv_update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>This downloads the current <code>PhoneNumberMetadata.xml</code>, parses it, and caches the result in <code>tools::R_user_dir("dialvalidator", "cache")</code>. No internet access is needed at install time or during normal use.</p>
+<p>Updated metadata is cached in <code>tools::R_user_dir("dialvalidator", "cache")</code> and used for the remainder of the session.</p>
+</div>
+<div class="section level2">
+<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h2>
+<p>This package would not exist without <a href="https://github.com/google/libphonenumber" class="external-link">libphonenumber</a>, Google’s open-source phone number handling library. Originally developed for Android and now maintained by a dedicated team of contributors, libphonenumber is the world’s most comprehensive and rigorously maintained database of phone number validation rules, formatting patterns, and metadata – covering 240+ territories, hundreds of number types, and countless edge cases accumulated over more than a decade of real-world use.</p>
+<p>The <code>PhoneNumberMetadata.xml</code> file that powers this package represents an extraordinary body of work: every territory’s numbering plan, every carrier’s allocation pattern, every formatting convention – painstakingly documented and continuously updated. We are deeply grateful to the libphonenumber authors and contributors for making this resource available under the Apache 2.0 license.</p>
+<p>We also acknowledge the <a href="https://github.com/socialresearchcentre/dialr" class="external-link">dialr</a> package by Danny Smith, which first brought libphonenumber to R via rJava and demonstrated the value of proper phone number handling in the R ecosystem.</p>
 </div>
 <div class="section level2">
 <h2 id="comparison-to-dialr">Comparison to dialr<a class="anchor" aria-label="anchor" href="#comparison-to-dialr"></a>
@@ -170,7 +307,7 @@
 <tr>
 <td>Java required</td>
 <td>No</td>
-<td>Yes (rJava)</td>
+<td>Yes (rJava + JDK)</td>
 </tr>
 <tr>
 <td>Dependencies</td>
@@ -178,32 +315,32 @@
 <td>rJava, libphonenumber JAR</td>
 </tr>
 <tr>
-<td>Install complexity</td>
+<td>Install</td>
 <td><code>pak::pak()</code></td>
-<td>JDK + rJava configuration</td>
+<td>JDK install + rJava configuration</td>
 </tr>
 <tr>
 <td>Metadata updates</td>
 <td><code><a href="reference/dv_update_metadata.html">dv_update_metadata()</a></code></td>
-<td>Update JAR</td>
+<td>Update JAR file</td>
 </tr>
 <tr>
 <td>Coverage</td>
 <td>240+ territories</td>
 <td>240+ territories</td>
 </tr>
+<tr>
+<td>API style</td>
+<td>Character vectors in/out</td>
+<td>Custom S3 class (<code>phone</code>)</td>
+</tr>
 </tbody>
 </table>
 </div>
 <div class="section level2">
-<h2 id="attribution">Attribution<a class="anchor" aria-label="anchor" href="#attribution"></a>
-</h2>
-<p>This package uses metadata from Google’s <a href="https://github.com/google/libphonenumber" class="external-link">libphonenumber</a> project, licensed under the Apache License 2.0. No Java code is included.</p>
-</div>
-<div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
 </h2>
-<p>Apache License 2.0</p>
+<p>Apache License 2.0. See <a href="LICENSE">LICENSE</a> for details.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

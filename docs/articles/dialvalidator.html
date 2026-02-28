@@ -66,112 +66,115 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>dialvalidator parses, validates, formats, and classifies phone
-numbers using Google’s libphonenumber metadata. It covers 240+
-territories and requires no Java runtime.</p>
+<p>dialvalidator parses, validates, formats, and classifies
+international phone numbers using Google’s <a href="https://github.com/google/libphonenumber" class="external-link">libphonenumber</a>
+metadata. It covers 240+ territories and requires no Java runtime – the
+metadata is pre-parsed into a native R object and shipped with the
+package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pcstrategyandopsco.github.io/dialvalidator/">dialvalidator</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="parsing-numbers">Parsing numbers<a class="anchor" aria-label="anchor" href="#parsing-numbers"></a>
-</h2>
-<p>Numbers can be supplied in international format (with a leading
-<code>+</code>) or in national format with a
-<code>default_region</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># International format — region is inferred</span></span>
-<span><span class="fu"><a href="../reference/phone_parse.html">phone_parse</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [[1]]$raw</span></span>
-<span><span class="co">#&gt; [1] "+64211234567"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$country_code</span></span>
-<span><span class="co">#&gt; [1] "64"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$national_number</span></span>
-<span><span class="co">#&gt; [1] "211234567"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$region</span></span>
-<span><span class="co">#&gt; [1] "NZ"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$valid</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span>
-<span></span>
-<span><span class="co"># National format — supply the region</span></span>
-<span><span class="fu"><a href="../reference/phone_parse.html">phone_parse</a></span><span class="op">(</span><span class="st">"021 123 4567"</span>, default_region <span class="op">=</span> <span class="st">"NZ"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [[1]]$raw</span></span>
-<span><span class="co">#&gt; [1] "021 123 4567"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$country_code</span></span>
-<span><span class="co">#&gt; [1] "64"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$national_number</span></span>
-<span><span class="co">#&gt; [1] "211234567"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$region</span></span>
-<span><span class="co">#&gt; [1] "NZ"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[1]]$valid</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-</div>
-<div class="section level2">
 <h2 id="validating-numbers">Validating numbers<a class="anchor" aria-label="anchor" href="#validating-numbers"></a>
 </h2>
-<p><code><a href="../reference/phone_valid.html">phone_valid()</a></code> returns a logical vector:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+6421"</span>, <span class="st">"not a number"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1]  TRUE FALSE FALSE</span></span></code></pre></div>
+<p><code><a href="../reference/phone_valid.html">phone_valid()</a></code> checks whether a number is valid for its
+territory. Numbers can be supplied in international format (with a
+leading <code>+</code>) or national format (with a
+<code>default_region</code>):</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># International format -- region inferred from country code</span></span>
+<span><span class="fu"><a href="../reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class="co"># National format -- supply the region</span></span>
+<span><span class="fu"><a href="../reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"021 123 4567"</span>, default_region <span class="op">=</span> <span class="st">"NZ"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class="co"># Invalid: too short</span></span>
+<span><span class="fu"><a href="../reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="st">"+6421"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span>
+<span></span>
+<span><span class="co"># Vectorised</span></span>
+<span><span class="fu"><a href="../reference/phone_valid.html">phone_valid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"not a number"</span>, <span class="st">"+61412345678"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  TRUE  TRUE FALSE  TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="formatting-numbers">Formatting numbers<a class="anchor" aria-label="anchor" href="#formatting-numbers"></a>
 </h2>
-<p>Three output formats are supported:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"E164"</span><span class="op">)</span></span>
+<p>Three output formats, matching libphonenumber’s conventions:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># E.164: compact, no spaces, machine-readable</span></span>
+<span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"E164"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "+64211234567"</span></span>
+<span></span>
+<span><span class="co"># National: how you'd dial it locally</span></span>
 <span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "021 123 4567"</span></span>
+<span></span>
+<span><span class="co"># International: with country code and spacing</span></span>
 <span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"INTERNATIONAL"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "+64 21 123 4567"</span></span></code></pre></div>
+<p>Formatting rules are territory-specific – the same function handles
+US parenthesised area codes, UK spacing, and every other convention:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+12125551234"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "(212) 555-1234"</span></span>
+<span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+442071234567"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "020 7123 4567"</span></span>
+<span><span class="fu"><a href="../reference/phone_format.html">phone_format</a></span><span class="op">(</span><span class="st">"+61412345678"</span>, <span class="st">"NATIONAL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "0412 345 678"</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="detecting-type-and-country">Detecting type and country<a class="anchor" aria-label="anchor" href="#detecting-type-and-country"></a>
+<h2 id="detecting-number-type">Detecting number type<a class="anchor" aria-label="anchor" href="#detecting-number-type"></a>
 </h2>
+<p><code><a href="../reference/phone_type.html">phone_type()</a></code> classifies numbers by matching against
+per-territory patterns for each number type:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+6493001234"</span>, <span class="st">"+18005551234"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "mobile"     "fixed_line" "toll_free"</span></span>
-<span><span class="fu"><a href="../reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"+442071234567"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "NZ" "US" "GB"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># NZ mobile</span></span>
+<span><span class="fu"><a href="../reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+64211234567"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "mobile"</span></span>
+<span></span>
+<span><span class="co"># US toll-free</span></span>
+<span><span class="fu"><a href="../reference/phone_type.html">phone_type</a></span><span class="op">(</span><span class="st">"+18005551234"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "toll_free"</span></span></code></pre></div>
+<p>Possible types: <code>mobile</code>, <code>fixed_line</code>,
+<code>fixed_line_or_mobile</code>, <code>toll_free</code>,
+<code>premium_rate</code>, <code>shared_cost</code>,
+<code>personal_number</code>, <code>voip</code>, <code>pager</code>,
+<code>uan</code>, <code>voicemail</code>, <code>unknown</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="country-resolution">Country resolution<a class="anchor" aria-label="anchor" href="#country-resolution"></a>
+</h2>
+<p><code><a href="../reference/phone_country.html">phone_country()</a></code> returns the ISO 3166-1 alpha-2 region
+code. For shared country codes like +1 (NANPA), the package resolves the
+correct territory using area-code-level patterns:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"+14165551234"</span>, <span class="st">"+442071234567"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "NZ" "US" "CA" "GB"</span></span></code></pre></div>
+<p>Note that +1 212 resolves to US (New York) while +1 416 resolves to
+CA (Toronto).</p>
 </div>
 <div class="section level2">
 <h2 id="all-in-one-with-phone_info">All-in-one with phone_info()<a class="anchor" aria-label="anchor" href="#all-in-one-with-phone_info"></a>
 </h2>
-<p>For batch processing, <code><a href="../reference/phone_info.html">phone_info()</a></code> returns a data frame
-with all fields:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_info.html">phone_info</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"+61412345678"</span><span class="op">)</span><span class="op">)</span></span>
+<p>For batch processing or exploratory analysis,
+<code><a href="../reference/phone_info.html">phone_info()</a></code> returns everything in a single data frame:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_info.html">phone_info</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+64211234567"</span>, <span class="st">"+12125551234"</span>, <span class="st">"+61412345678"</span>, <span class="st">"+81312345678"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            raw         e164       national   international region country_code</span></span>
 <span><span class="co">#&gt; 1 +64211234567 +64211234567   021 123 4567 +64 21 123 4567     NZ           64</span></span>
 <span><span class="co">#&gt; 2 +12125551234 +12125551234 (212) 555-1234 +1 212-555-1234     US            1</span></span>
 <span><span class="co">#&gt; 3 +61412345678 +61412345678   0412 345 678 +61 412 345 678     AU           61</span></span>
+<span><span class="co">#&gt; 4 +81312345678 +81312345678   03-1234-5678 +81 3-1234-5678     JP           81</span></span>
 <span><span class="co">#&gt;                   type valid</span></span>
 <span><span class="co">#&gt; 1               mobile  TRUE</span></span>
 <span><span class="co">#&gt; 2 fixed_line_or_mobile  TRUE</span></span>
-<span><span class="co">#&gt; 3               mobile  TRUE</span></span></code></pre></div>
+<span><span class="co">#&gt; 3               mobile  TRUE</span></span>
+<span><span class="co">#&gt; 4           fixed_line  TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="updating-metadata">Updating metadata<a class="anchor" aria-label="anchor" href="#updating-metadata"></a>
-</h2>
-<p>The bundled metadata is current as of the package build date. To
-fetch the latest version from Google’s repository:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/dv_update_metadata.html">dv_update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Updated metadata is cached locally and used for the remainder of the
-session.</p>
-</div>
-<div class="section level2">
-<h2 id="working-with-national-numbers">Working with national numbers<a class="anchor" aria-label="anchor" href="#working-with-national-numbers"></a>
+<h2 id="working-with-national-format-numbers">Working with national-format numbers<a class="anchor" aria-label="anchor" href="#working-with-national-format-numbers"></a>
 </h2>
 <p>When processing numbers from a known country, set
 <code>default_region</code> once:</p>
@@ -188,14 +191,28 @@ session.</p>
 <span><span class="co">#&gt; 3  toll_free  TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="nanpa-north-american-numbering-plan">NANPA (North American Numbering Plan)<a class="anchor" aria-label="anchor" href="#nanpa-north-american-numbering-plan"></a>
+<h2 id="inspecting-metadata">Inspecting metadata<a class="anchor" aria-label="anchor" href="#inspecting-metadata"></a>
 </h2>
-<p>Country code +1 is shared by the US, Canada, and Caribbean nations.
-dialvalidator resolves the correct region using territory-specific area
-code patterns:</p>
+<p>You can inspect the underlying libphonenumber metadata for any
+territory:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/phone_country.html">phone_country</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"+12125551234"</span>, <span class="st">"+14165551234"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "US" "CA"</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">nz</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dv_territory.html">dv_territory</a></span><span class="op">(</span><span class="st">"NZ"</span><span class="op">)</span></span>
+<span><span class="va">nz</span><span class="op">$</span><span class="va">country_code</span></span>
+<span><span class="co">#&gt; [1] "64"</span></span>
+<span><span class="va">nz</span><span class="op">$</span><span class="va">national_prefix</span></span>
+<span><span class="co">#&gt; [1] "0"</span></span>
+<span><span class="va">nz</span><span class="op">$</span><span class="va">mobile</span><span class="op">$</span><span class="va">example</span></span>
+<span><span class="co">#&gt; [1] "211234567"</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="updating-metadata">Updating metadata<a class="anchor" aria-label="anchor" href="#updating-metadata"></a>
+</h2>
+<p>The bundled metadata is current as of the package build date. To
+fetch the latest version from Google’s repository:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/dv_update_metadata.html">dv_update_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Updated metadata is cached locally and used for the remainder of the
+session. No internet access is needed during normal use.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
