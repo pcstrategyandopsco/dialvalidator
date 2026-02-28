@@ -1,5 +1,9 @@
 # dialvalidator <a href="https://pcstrategyandopsco.github.io/dialvalidator/"><img src="man/figures/logo.png" align="right" height="139" alt="dialvalidator logo" /></a>
 
+<!-- badges: start -->
+[![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://pcstrategyandopsco.github.io/dialvalidator/)
+<!-- badges: end -->
+
 Parse, validate, format, and classify international phone numbers in R
 -- powered by Google's [libphonenumber](https://github.com/google/libphonenumber)
 metadata. No Java required.
