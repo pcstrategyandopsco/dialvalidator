@@ -10,4 +10,5 @@
 ^docs$
 ^pkgdown$
 ^cran-comments\.md$
-^\.github$
+^\.claude$
+^Rplots\.pdf$

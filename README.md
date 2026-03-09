@@ -213,4 +213,4 @@ and demonstrated the value of proper phone number handling in the R ecosystem.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) for details.
+Apache License 2.0. See the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) for details.

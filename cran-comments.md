@@ -1,13 +1,17 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+The single NOTE is the expected "New submission" note for first-time
+CRAN packages.
 
 ## Test environments
 
 - local macOS Sequoia 15.5 (aarch64), R 4.5.2
 - GitHub Actions: ubuntu-latest (R release, devel, oldrel-1)
-- GitHub Actions: macos-latest (R release)
+- GitHub Actions: macos-14 (R release)
 - GitHub Actions: windows-latest (R release)
+- win-builder: R-release, R-devel
 - R-hub: linux (R-devel)
 - R-hub: macos-arm64 (R-devel)
 - R-hub: windows (R-devel)
