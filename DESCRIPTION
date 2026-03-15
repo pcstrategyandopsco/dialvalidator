@@ -1,6 +1,6 @@
 Package: dialvalidator
 Title: Phone Number Validation Using Google's 'libphonenumber' Metadata
-Version: 0.1.0
+Version: 0.1.1
 Authors@R:
     person("Peeyoosh", "Chandra", , "pc@strategyandops.co", role = c("aut", "cre"))
 Description: Parses, validates, formats, and classifies phone numbers using

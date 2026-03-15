@@ -62,14 +62,88 @@ parse_single <- function(x, default_region = NULL) {
     if (is.null(territory)) return(invalid)
 
     cc <- territory$country_code
-    nn <- strip_national_prefix(digits, territory)
-    region <- default_region
 
-    # For shared country codes, verify the number actually belongs to this region
-    regions <- the$metadata$cc_to_regions[[cc]]
-    if (length(regions) > 1) {
-      resolved <- resolve_region(cc, nn)
-      if (!is.na(resolved)) region <- resolved
+    # Try stripping IDD prefix (e.g. "00" or "0161") to handle international
+    # dialling from within the default_region
+    idd_matched <- FALSE
+    idd_prefix <- territory$international_prefix
+    if (!is.null(idd_prefix) && nzchar(idd_prefix)) {
+      idd_re <- paste0("^(?:", idd_prefix, ")")
+      m <- regexpr(idd_re, digits, perl = TRUE)
+      if (m > 0) {
+        after_idd <- substring(digits, attr(m, "match.length") + 1)
+        if (nzchar(after_idd)) {
+          extracted <- extract_country_code(after_idd)
+          if (!is.null(extracted)) {
+            cc <- extracted$country_code
+            nn <- extracted$national_number
+            region <- resolve_region(cc, nn)
+            if (is.na(region)) region <- default_region
+            idd_matched <- TRUE
+          }
+        }
+      }
+    }
+
+    if (!idd_matched) {
+      nn <- strip_national_prefix(digits, territory)
+      region <- default_region
+
+      # For shared country codes, verify the number actually belongs to this region
+      regions <- the$metadata$cc_to_regions[[cc]]
+      if (length(regions) > 1) {
+        resolved <- resolve_region(cc, nn)
+        if (!is.na(resolved)) region <- resolved
+      }
+
+      # If the national number doesn't validate, check if it starts with the
+      # country code (bare international number without + or IDD)
+      nat_territory <- the$metadata$territories[[region]]
+      nat_valid <- if (!is.null(nat_territory)) {
+        len_ok <- valid_length(nn, nat_territory)
+        pat_ok <- if (!is.null(nat_territory$general_desc$pattern)) {
+          str_detect(nn, nat_territory$general_desc$pattern)
+        } else TRUE
+        len_ok && pat_ok
+      } else FALSE
+      if (!nat_valid && str_starts(digits, fixed(cc))) {
+        stripped <- str_sub(digits, nchar(cc) + 1)
+        if (nzchar(stripped)) {
+          # Also strip national prefix if present after the country code
+          # (e.g. "(64) 0211234567" → digits "640211234567" → strip CC → "0211234567" → strip NP → "211234567")
+          stripped_np <- strip_national_prefix(stripped, territory)
+          strip_territory <- the$metadata$territories[[region]]
+          # Try with national prefix stripped first, then without
+          candidate <- stripped_np
+          strip_valid <- if (!is.null(strip_territory)) {
+            len_ok <- valid_length(candidate, strip_territory)
+            pat_ok <- if (!is.null(strip_territory$general_desc$pattern)) {
+              str_detect(candidate, strip_territory$general_desc$pattern)
+            } else TRUE
+            len_ok && pat_ok
+          } else FALSE
+          if (!strip_valid && !identical(stripped, stripped_np)) {
+            # Fall back to without national prefix stripping
+            candidate <- stripped
+            strip_valid <- if (!is.null(strip_territory)) {
+              len_ok <- valid_length(candidate, strip_territory)
+              pat_ok <- if (!is.null(strip_territory$general_desc$pattern)) {
+                str_detect(candidate, strip_territory$general_desc$pattern)
+              } else TRUE
+              len_ok && pat_ok
+            } else FALSE
+          }
+          if (strip_valid) {
+            nn <- candidate
+            # Re-resolve region for shared country codes
+            regions <- the$metadata$cc_to_regions[[cc]]
+            if (length(regions) > 1) {
+              resolved <- resolve_region(cc, nn)
+              if (!is.na(resolved)) region <- resolved
+            }
+          }
+        }
+      }
     }
   } else {
     return(invalid)

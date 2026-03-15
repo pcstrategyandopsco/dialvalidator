@@ -10,7 +10,8 @@
 #' @noRd
 normalize_number <- function(x) {
   if (is.na(x) || !nzchar(x)) return(NA_character_)
-  has_plus <- str_starts(x, fixed("+"))
+  # Detect '+' anywhere before the first digit (handles (+64), (+ 64), etc.)
+  has_plus <- grepl("^[^0-9]*\\+", x)
   digits <- str_remove_all(x, "[^0-9]")
   if (!nzchar(digits)) return(NA_character_)
   if (has_plus) paste0("+", digits) else digits
