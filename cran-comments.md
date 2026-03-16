@@ -1,9 +1,22 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
-The single NOTE is the expected "New submission" note for first-time
-CRAN packages.
+## Resubmission
+
+This is an update to the published 0.1.0 release, addressing the
+additional-issues NOTE from CRAN checks:
+
+- `dv_update_metadata()` example was wrapped in `\donttest{}`, which
+  CRAN runs. The function writes to `tools::R_user_dir()`, triggering a
+  NOTE about files left in `~/.cache/R/dialvalidator/`. Changed to
+  `\dontrun{}` to match `dv_update_lookups()`.
+
+Other changes since 0.1.0:
+
+- Add carrier, geocoding, and timezone lookup functions.
+- Fix phone number parsing to honour international_prefix and
+  country_code from XML metadata.
 
 ## Test environments
 
@@ -11,19 +24,7 @@ CRAN packages.
 - GitHub Actions: ubuntu-latest (R release, devel, oldrel-1)
 - GitHub Actions: macos-14 (R release)
 - GitHub Actions: windows-latest (R release)
-- win-builder: R-release, R-devel
-- R-hub: linux (R-devel)
-- R-hub: macos-arm64 (R-devel)
-- R-hub: windows (R-devel)
-- R-hub: ubuntu-clang (R-devel)
 
 ## Downstream dependencies
 
-This is a new package with no reverse dependencies.
-
-## Notes
-
-This package ships pre-parsed metadata (~54 KB RDS) from Google's
-libphonenumber project (Apache 2.0 licensed). The metadata is parsed at
-build time from PhoneNumberMetadata.xml and does not require network
-access at install or runtime.
+No reverse dependencies.
