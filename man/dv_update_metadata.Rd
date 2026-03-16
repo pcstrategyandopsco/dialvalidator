@@ -25,7 +25,7 @@ The updated metadata is used for the remainder of the session.
 Requires the \pkg{xml2} package.
 }
 \examples{
-\donttest{
+\dontrun{
 dv_update_metadata()
 }
 

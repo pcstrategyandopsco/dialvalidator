@@ -59,7 +59,7 @@ dv_territory <- function(region) {
 #' @return Invisibly returns the path to the cached metadata file.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' dv_update_metadata()
 #' }
 #'
