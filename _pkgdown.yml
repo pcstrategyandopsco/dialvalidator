@@ -24,6 +24,15 @@ reference:
       - phone_country
       - phone_info
 
+  - title: "Lookups"
+    desc: "Carrier, geocoding, and timezone lookups."
+    contents:
+      - lookup
+      - phone_carrier
+      - phone_geocode
+      - phone_timezone
+      - phone_timezones
+
   - title: "Metadata"
     desc: "Access and update the bundled libphonenumber metadata."
     contents:
@@ -31,3 +40,4 @@ reference:
       - dv_metadata
       - dv_territory
       - dv_update_metadata
+      - dv_update_lookups

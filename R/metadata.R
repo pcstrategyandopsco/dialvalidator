@@ -103,7 +103,7 @@ dv_update_metadata <- function(
 #' @return Invisibly returns a character vector of cache file paths.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' dv_update_lookups()
 #' }
 #'

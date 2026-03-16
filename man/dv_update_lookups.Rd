@@ -18,7 +18,7 @@ directory. The updated data is used for the remainder of the session.
 Requires the \pkg{jsonlite} package for listing carrier/geocoding files.
 }
 \examples{
-\donttest{
+\dontrun{
 dv_update_lookups()
 }
 

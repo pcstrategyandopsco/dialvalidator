@@ -17,6 +17,21 @@ Parse, validate, format, and classify phone numbers.
 - [`phone_info()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/phone_info.md)
   : Get All Phone Number Information
 
+## Lookups
+
+Carrier, geocoding, and timezone lookups.
+
+- [`lookup`](https://pcstrategyandopsco.github.io/dialvalidator/reference/lookup.md)
+  : Phone Number Lookups
+- [`phone_carrier()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/phone_carrier.md)
+  : Look up the carrier for a phone number
+- [`phone_geocode()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/phone_geocode.md)
+  : Look up the geographic location for a phone number
+- [`phone_timezone()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/phone_timezone.md)
+  : Look up the timezone for a phone number
+- [`phone_timezones()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/phone_timezones.md)
+  : Look up all timezones for a phone number
+
 ## Metadata
 
 Access and update the bundled libphonenumber metadata.
@@ -29,3 +44,5 @@ Access and update the bundled libphonenumber metadata.
   : Get metadata for a specific territory
 - [`dv_update_metadata()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/dv_update_metadata.md)
   : Update metadata from upstream
+- [`dv_update_lookups()`](https://pcstrategyandopsco.github.io/dialvalidator/reference/dv_update_lookups.md)
+  : Update lookup data from upstream

@@ -226,6 +226,5 @@ ecosystem.
 
 ## License
 
-Apache License 2.0. See
-[LICENSE](https://pcstrategyandopsco.github.io/dialvalidator/LICENSE)
-for details.
+Apache License 2.0. See the [Apache License
+2.0](https://www.apache.org/licenses/LICENSE-2.0) for details.

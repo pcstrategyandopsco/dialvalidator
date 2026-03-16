@@ -32,7 +32,10 @@ Requires the xml2 package.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 dv_update_metadata()
-} # }
+#> ℹ Downloading PhoneNumberMetadata.xml...
+#> ℹ Parsing metadata...
+#> ✔ Updated to version live (246 territories). Cached at /Users/peeyooshchandra/Library/Caches/org.R-project.R/R/dialvalidator/metadata.rds
+# }
 ```
