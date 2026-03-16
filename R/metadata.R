@@ -92,6 +92,95 @@ dv_update_metadata <- function(
 }
 
 
+#' Update lookup data from upstream
+#'
+#' Downloads the latest carrier, geocoding, and timezone data from Google's
+#' libphonenumber repository, and saves the results to the user's cache
+#' directory. The updated data is used for the remainder of the session.
+#'
+#' Requires the \pkg{jsonlite} package for listing carrier/geocoding files.
+#'
+#' @return Invisibly returns a character vector of cache file paths.
+#'
+#' @examples
+#' \donttest{
+#' dv_update_lookups()
+#' }
+#'
+#' @export
+dv_update_lookups <- function() {
+  rlang::check_installed("jsonlite", reason = "to list upstream data files")
+
+  base_url <- paste0(
+    "https://raw.githubusercontent.com/google/libphonenumber/master/resources/"
+  )
+  cache_dir <- tools::R_user_dir("dialvalidator", "cache")
+  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+  paths <- character(3)
+
+  # Helper: parse pipe-delimited lines into named character vector
+  parse_lines <- function(lines) {
+    lines <- lines[!grepl("^\\s*#", lines) & nzchar(trimws(lines))]
+    parts <- strsplit(lines, "|", fixed = TRUE)
+    prefixes <- vapply(parts, `[`, character(1), 1)
+    values <- vapply(parts, function(p) paste(p[-1], collapse = "|"), character(1))
+    stats::setNames(values, prefixes)
+  }
+
+  # Carrier
+
+  cli::cli_alert_info("Downloading carrier data...")
+  listing <- jsonlite::fromJSON(paste0(
+    "https://api.github.com/repos/google/libphonenumber/contents/",
+    "resources/carrier/en"
+  ))
+  carrier_files <- listing$name[grepl("\\.txt$", listing$name)]
+  carrier <- character(0)
+  for (f in carrier_files) {
+    lines <- readLines(paste0(base_url, "carrier/en/", f), warn = FALSE)
+    carrier <- c(carrier, parse_lines(lines))
+  }
+  paths[1] <- file.path(cache_dir, "carrier.rds")
+  saveRDS(carrier, paths[1], compress = "xz")
+  the$carrier <- carrier
+  cli::cli_alert_success("Carrier: {length(carrier)} prefixes")
+
+  # Geocoding
+  cli::cli_alert_info("Downloading geocoding data...")
+  listing <- jsonlite::fromJSON(paste0(
+    "https://api.github.com/repos/google/libphonenumber/contents/",
+    "resources/geocoding/en"
+  ))
+  geo_files <- listing$name[grepl("\\.txt$", listing$name)]
+  geocoding <- character(0)
+  for (f in geo_files) {
+    lines <- readLines(paste0(base_url, "geocoding/en/", f), warn = FALSE)
+    geocoding <- c(geocoding, parse_lines(lines))
+  }
+  paths[2] <- file.path(cache_dir, "geocoding.rds")
+  saveRDS(geocoding, paths[2], compress = "xz")
+  the$geocoding <- geocoding
+  cli::cli_alert_success("Geocoding: {length(geocoding)} prefixes")
+
+  # Timezones
+  cli::cli_alert_info("Downloading timezone data...")
+  tz_lines <- readLines(paste0(base_url, "timezones/map_data.txt"), warn = FALSE)
+  tz_lines <- tz_lines[!grepl("^\\s*#", tz_lines) & nzchar(trimws(tz_lines))]
+  tz_parts <- strsplit(tz_lines, "|", fixed = TRUE)
+  tz_prefixes <- vapply(tz_parts, `[`, character(1), 1)
+  tz_values <- lapply(tz_parts, function(p) {
+    strsplit(p[2], "&", fixed = TRUE)[[1]]
+  })
+  timezones <- stats::setNames(tz_values, tz_prefixes)
+  paths[3] <- file.path(cache_dir, "timezones.rds")
+  saveRDS(timezones, paths[3], compress = "xz")
+  the$timezones <- timezones
+  cli::cli_alert_success("Timezones: {length(timezones)} prefixes")
+
+  invisible(paths)
+}
+
+
 # --- Internals ---
 
 #' Ensure metadata is loaded
@@ -108,6 +197,28 @@ ensure_metadata <- function() {
       rlang::abort(
         "dialvalidator metadata not found. This should not happen if the package was installed correctly.",
         class = "dialvalidator_no_metadata"
+      )
+    }
+  }
+}
+
+#' Ensure lookup data is loaded
+#' @param name One of "carrier", "geocoding", "timezones".
+#' @noRd
+ensure_lookup <- function(name) {
+  if (is.null(the[[name]])) {
+    cache_path <- file.path(
+      tools::R_user_dir("dialvalidator", "cache"), paste0(name, ".rds")
+    )
+    if (file.exists(cache_path)) {
+      the[[name]] <- readRDS(cache_path)
+    } else {
+      rlang::abort(
+        paste0(
+          "dialvalidator ", name, " data not found. ",
+          "This should not happen if the package was installed correctly."
+        ),
+        class = "dialvalidator_no_lookup"
       )
     }
   }

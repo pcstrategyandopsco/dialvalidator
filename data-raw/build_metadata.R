@@ -198,3 +198,91 @@ cli::cli_alert_success(
   "Done! {length(territories)} territories, {length(example_numbers)} examples. ",
   "File size: {round(file_size / 1024)} KB"
 )
+
+# ===========================================================================
+# Lookup data: carrier, geocoding, timezone
+# ===========================================================================
+
+base_url <- paste0(
+  "https://raw.githubusercontent.com/google/libphonenumber/master/resources/"
+)
+
+#' Parse a pipe-delimited lookup file into a named character vector
+#' Lines are "{prefix}|{value}", comments start with #
+#' @noRd
+parse_lookup_file <- function(lines) {
+  lines <- lines[!grepl("^\\s*#", lines) & nzchar(trimws(lines))]
+  parts <- strsplit(lines, "\\|", fixed = FALSE)
+  prefixes <- vapply(parts, `[`, character(1), 1)
+  values <- vapply(parts, function(p) paste(p[-1], collapse = "|"), character(1))
+  stats::setNames(values, prefixes)
+}
+
+# --- Carrier data ---
+cli::cli_alert_info("Downloading carrier data...")
+# Get the directory listing to find all country files
+carrier_index_url <- paste0(
+  "https://api.github.com/repos/google/libphonenumber/contents/",
+  "resources/carrier/en"
+)
+carrier_listing <- jsonlite::fromJSON(carrier_index_url)
+carrier_files <- carrier_listing$name[grepl("\\.txt$", carrier_listing$name)]
+
+carrier <- character(0)
+for (f in carrier_files) {
+  url <- paste0(base_url, "carrier/en/", f)
+  lines <- readLines(url, warn = FALSE)
+  carrier <- c(carrier, parse_lookup_file(lines))
+}
+cli::cli_alert_info("Parsed {length(carrier)} carrier prefixes")
+
+carrier_path <- file.path("inst", "extdata", "carrier.rds")
+saveRDS(carrier, carrier_path, compress = "xz")
+cli::cli_alert_success(
+  "Carrier data: {round(file.size(carrier_path) / 1024)} KB"
+)
+
+# --- Geocoding data ---
+cli::cli_alert_info("Downloading geocoding data...")
+geocoding_index_url <- paste0(
+  "https://api.github.com/repos/google/libphonenumber/contents/",
+  "resources/geocoding/en"
+)
+geocoding_listing <- jsonlite::fromJSON(geocoding_index_url)
+geocoding_files <- geocoding_listing$name[grepl("\\.txt$", geocoding_listing$name)]
+
+geocoding <- character(0)
+for (f in geocoding_files) {
+  url <- paste0(base_url, "geocoding/en/", f)
+  lines <- readLines(url, warn = FALSE)
+  geocoding <- c(geocoding, parse_lookup_file(lines))
+}
+cli::cli_alert_info("Parsed {length(geocoding)} geocoding prefixes")
+
+geocoding_path <- file.path("inst", "extdata", "geocoding.rds")
+saveRDS(geocoding, geocoding_path, compress = "xz")
+cli::cli_alert_success(
+  "Geocoding data: {round(file.size(geocoding_path) / 1024)} KB"
+)
+
+# --- Timezone data ---
+cli::cli_alert_info("Downloading timezone data...")
+tz_url <- paste0(base_url, "timezones/map_data.txt")
+tz_lines <- readLines(tz_url, warn = FALSE)
+tz_lines <- tz_lines[!grepl("^\\s*#", tz_lines) & nzchar(trimws(tz_lines))]
+
+tz_parts <- strsplit(tz_lines, "\\|", fixed = FALSE)
+tz_prefixes <- vapply(tz_parts, `[`, character(1), 1)
+tz_values <- lapply(tz_parts, function(p) {
+  strsplit(p[2], "&", fixed = TRUE)[[1]]
+})
+timezones <- stats::setNames(tz_values, tz_prefixes)
+cli::cli_alert_info("Parsed {length(timezones)} timezone prefixes")
+
+timezones_path <- file.path("inst", "extdata", "timezones.rds")
+saveRDS(timezones, timezones_path, compress = "xz")
+cli::cli_alert_success(
+  "Timezone data: {round(file.size(timezones_path) / 1024)} KB"
+)
+
+cli::cli_alert_success("All lookup data built successfully!")

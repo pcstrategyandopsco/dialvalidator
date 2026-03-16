@@ -1,5 +1,5 @@
 # Internal utility functions
-# These are not exported — used by parse, validate, format, detect.
+# These are not exported — used by parse, validate, format, detect, lookup.
 
 #' Normalize a phone number string
 #'
@@ -155,6 +155,27 @@ find_format <- function(national_number, territory) {
   }
 
   NULL
+}
+
+#' Longest-prefix match against a named lookup vector
+#'
+#' Tries progressively shorter prefixes of `e164_digits` (from full length
+#' down to 1) until a match is found in `lookup`.
+#'
+#' @param e164_digits Character scalar of E164 digits (country code + national number, no +).
+#' @param lookup A named character vector (names = prefixes, values = labels)
+#'   or a named list (for timezone data).
+#' @return The matched value, or `NA_character_` if no match.
+#' @noRd
+longest_prefix_match <- function(e164_digits, lookup) {
+  nms <- names(lookup)
+  n <- nchar(e164_digits)
+  for (len in n:1) {
+    prefix <- substr(e164_digits, 1, len)
+    idx <- match(prefix, nms)
+    if (!is.na(idx)) return(lookup[[idx]])
+  }
+  NA_character_
 }
 
 #' Convert libphonenumber format string ($1, $2, ...) to stringr replacement (\\1, \\2, ...)
